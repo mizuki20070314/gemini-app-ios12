@@ -17,6 +17,7 @@ final class ImagePreviewViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        navigationController?.navigationBar.barStyle = .black
         title = "画像プレビュー"
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "閉じる", style: .done, target: self, action: #selector(closeTapped))
         let saveBtn = UIBarButtonItem(title: "保存", style: .plain, target: self, action: #selector(saveTapped))

@@ -25,6 +25,10 @@ final class RootViewController: UIViewController {
         return Theme.current.statusBarStyle
     }
 
+    override var childForStatusBarStyle: UIViewController? {
+        return nil
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()

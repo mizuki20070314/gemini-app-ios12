@@ -7,6 +7,7 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
     private var isNewUnsaved: Bool
 
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let emptyScrollView = UIScrollView()
     private let emptyContainer = UIView()
     private let emptySpark = GeminiSparkView()
     private let greetingLabel = UILabel()
@@ -83,8 +84,14 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
         tableView.register(AssistantMessageCell.self, forCellReuseIdentifier: AssistantMessageCell.reuseId)
         view.addSubview(tableView)
 
+        emptyScrollView.translatesAutoresizingMaskIntoConstraints = false
+        emptyScrollView.alwaysBounceVertical = true
+        emptyScrollView.keyboardDismissMode = .interactive
+        emptyScrollView.clipsToBounds = true
+        view.addSubview(emptyScrollView)
+
         emptyContainer.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(emptyContainer)
+        emptyScrollView.addSubview(emptyContainer)
 
         emptySpark.translatesAutoresizingMaskIntoConstraints = false
         emptyContainer.addSubview(emptySpark)
@@ -145,28 +152,33 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: composer.topAnchor),
 
-            emptyContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            emptyContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            emptyContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            emptyContainer.bottomAnchor.constraint(equalTo: composer.topAnchor),
+            emptyScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            emptyScrollView.bottomAnchor.constraint(equalTo: composer.topAnchor),
 
+            emptyContainer.topAnchor.constraint(equalTo: emptyScrollView.topAnchor),
+            emptyContainer.leadingAnchor.constraint(equalTo: emptyScrollView.leadingAnchor),
+            emptyContainer.trailingAnchor.constraint(equalTo: emptyScrollView.trailingAnchor),
+            emptyContainer.bottomAnchor.constraint(equalTo: emptyScrollView.bottomAnchor),
+            emptyContainer.widthAnchor.constraint(equalTo: emptyScrollView.widthAnchor),
+
+            emptySpark.topAnchor.constraint(equalTo: emptyContainer.topAnchor, constant: 24),
             emptySpark.centerXAnchor.constraint(equalTo: emptyContainer.centerXAnchor),
-            emptySpark.topAnchor.constraint(greaterThanOrEqualTo: emptyContainer.topAnchor, constant: 24),
-            emptySpark.bottomAnchor.constraint(equalTo: greetingLabel.topAnchor, constant: -14),
-            emptySpark.widthAnchor.constraint(equalToConstant: 44),
-            emptySpark.heightAnchor.constraint(equalToConstant: 44),
+            emptySpark.widthAnchor.constraint(equalToConstant: 42),
+            emptySpark.heightAnchor.constraint(equalToConstant: 42),
 
-            greetingLabel.centerXAnchor.constraint(equalTo: emptyContainer.centerXAnchor),
-            greetingLabel.centerYAnchor.constraint(equalTo: emptyContainer.centerYAnchor, constant: -54),
+            greetingLabel.topAnchor.constraint(equalTo: emptySpark.bottomAnchor, constant: 12),
             greetingLabel.leadingAnchor.constraint(equalTo: emptyContainer.leadingAnchor, constant: 24),
             greetingLabel.trailingAnchor.constraint(equalTo: emptyContainer.trailingAnchor, constant: -24),
 
             statusBadge.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 12),
             statusBadge.centerXAnchor.constraint(equalTo: emptyContainer.centerXAnchor),
 
-            suggestionsStack.topAnchor.constraint(equalTo: statusBadge.bottomAnchor, constant: 20),
+            suggestionsStack.topAnchor.constraint(equalTo: statusBadge.bottomAnchor, constant: 18),
             suggestionsStack.leadingAnchor.constraint(equalTo: emptyContainer.leadingAnchor, constant: 20),
             suggestionsStack.trailingAnchor.constraint(equalTo: emptyContainer.trailingAnchor, constant: -20),
+            suggestionsStack.bottomAnchor.constraint(equalTo: emptyContainer.bottomAnchor, constant: -16),
 
             composer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             composer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -176,6 +188,9 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         tableView.addGestureRecognizer(tap)
+        let emptyTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        emptyTap.cancelsTouchesInView = false
+        emptyScrollView.addGestureRecognizer(emptyTap)
     }
 
     @objc private func dismissKeyboard() { view.endEditing(true) }
@@ -196,6 +211,7 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
         let t = Theme.current
         view.backgroundColor = t.background
         tableView.backgroundColor = t.background
+        emptyScrollView.backgroundColor = t.background
         emptyContainer.backgroundColor = t.background
         greetingLabel.textColor = t.textPrimary
         statusBadge.backgroundColor = t.accentSoft
@@ -221,7 +237,7 @@ final class ChatViewController: UIViewController, UITableViewDataSource, UITable
 
     private func updateEmptyState() {
         let isEmpty = conversation.messages.isEmpty
-        emptyContainer.isHidden = !isEmpty
+        emptyScrollView.isHidden = !isEmpty
         tableView.isHidden = isEmpty
         updateStatusBadge()
     }

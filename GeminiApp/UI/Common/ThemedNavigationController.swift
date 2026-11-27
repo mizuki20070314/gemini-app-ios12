@@ -15,10 +15,15 @@ final class ThemedNavigationController: UINavigationController {
         return Theme.current.statusBarStyle
     }
 
+    override var childForStatusBarStyle: UIViewController? {
+        return nil
+    }
+
     @objc func applyTheme() {
         let t = Theme.current
         view.backgroundColor = t.background
         navigationBar.isTranslucent = false
+        navigationBar.barStyle = t.isDark ? .black : .default
         navigationBar.barTintColor = t.background
         navigationBar.tintColor = t.accent
         navigationBar.shadowImage = UIImage()

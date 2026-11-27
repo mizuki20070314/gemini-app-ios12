@@ -10,7 +10,8 @@ final class ComposerView: UIView, UITextViewDelegate {
     private let placeholderLabel = UILabel()
     private var textHeightConstraint: NSLayoutConstraint!
 
-    private let attachButton = IconButton(icon: .plus, size: 20)
+    private let toolbarView = UIView()
+    private let attachButton = UIButton(type: .system)
     private let modelButton = UIButton(type: .system)
     private let sendButton = UIButton(type: .system)
 
@@ -44,9 +45,15 @@ final class ComposerView: UIView, UITextViewDelegate {
     }
 
     private func setup() {
+        setContentHuggingPriority(.required, for: .vertical)
+        setContentCompressionResistancePriority(.required, for: .vertical)
+
         cardView.layer.cornerRadius = 22
         cardView.layer.borderWidth = 1
+        cardView.clipsToBounds = true
         cardView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.setContentHuggingPriority(.required, for: .vertical)
+        cardView.setContentCompressionResistancePriority(.required, for: .vertical)
         addSubview(cardView)
 
         attachmentScroll.showsHorizontalScrollIndicator = false
@@ -64,31 +71,40 @@ final class ComposerView: UIView, UITextViewDelegate {
         textView.backgroundColor = .clear
         textView.isScrollEnabled = false
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 6, right: 10)
+        textView.setContentCompressionResistancePriority(.required, for: .vertical)
         textView.translatesAutoresizingMaskIntoConstraints = false
         cardView.addSubview(textView)
 
         placeholderLabel.text = "Gemini に相談する..."
         placeholderLabel.font = UIFont.systemFont(ofSize: 16)
+        placeholderLabel.isUserInteractionEnabled = false
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         cardView.addSubview(placeholderLabel)
 
+        toolbarView.backgroundColor = .clear
+        toolbarView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(toolbarView)
+
+        attachButton.translatesAutoresizingMaskIntoConstraints = false
         attachButton.addTarget(self, action: #selector(attachTapped), for: .touchUpInside)
-        cardView.addSubview(attachButton)
+        toolbarView.addSubview(attachButton)
 
         modelButton.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        modelButton.contentEdgeInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
+        modelButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         modelButton.layer.cornerRadius = 12
         modelButton.translatesAutoresizingMaskIntoConstraints = false
         modelButton.addTarget(self, action: #selector(modelTapped), for: .touchUpInside)
-        cardView.addSubview(modelButton)
+        toolbarView.addSubview(modelButton)
 
         sendButton.layer.cornerRadius = 17
         sendButton.translatesAutoresizingMaskIntoConstraints = false
         sendButton.addTarget(self, action: #selector(sendTapped), for: .touchUpInside)
-        cardView.addSubview(sendButton)
+        toolbarView.addSubview(sendButton)
 
         attachmentHeightConstraint = attachmentScroll.heightAnchor.constraint(equalToConstant: 0)
-        textHeightConstraint = textView.heightAnchor.constraint(equalToConstant: 38)
+        attachmentHeightConstraint.priority = .required
+        textHeightConstraint = textView.heightAnchor.constraint(equalToConstant: 40)
+        textHeightConstraint.priority = .required
 
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
@@ -114,17 +130,25 @@ final class ComposerView: UIView, UITextViewDelegate {
 
             placeholderLabel.topAnchor.constraint(equalTo: textView.topAnchor, constant: 10),
             placeholderLabel.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 15),
+            placeholderLabel.trailingAnchor.constraint(lessThanOrEqualTo: textView.trailingAnchor, constant: -15),
 
-            attachButton.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 2),
-            attachButton.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 6),
-            attachButton.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -4),
+            toolbarView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 2),
+            toolbarView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
+            toolbarView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
+            toolbarView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -6),
+            toolbarView.heightAnchor.constraint(equalToConstant: 38),
 
-            modelButton.centerYAnchor.constraint(equalTo: attachButton.centerYAnchor),
+            attachButton.leadingAnchor.constraint(equalTo: toolbarView.leadingAnchor, constant: 6),
+            attachButton.centerYAnchor.constraint(equalTo: toolbarView.centerYAnchor),
+            attachButton.widthAnchor.constraint(equalToConstant: 36),
+            attachButton.heightAnchor.constraint(equalToConstant: 36),
+
             modelButton.leadingAnchor.constraint(equalTo: attachButton.trailingAnchor, constant: 4),
+            modelButton.centerYAnchor.constraint(equalTo: toolbarView.centerYAnchor),
             modelButton.trailingAnchor.constraint(lessThanOrEqualTo: sendButton.leadingAnchor, constant: -8),
 
-            sendButton.centerYAnchor.constraint(equalTo: attachButton.centerYAnchor),
-            sendButton.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -8),
+            sendButton.trailingAnchor.constraint(equalTo: toolbarView.trailingAnchor, constant: -8),
+            sendButton.centerYAnchor.constraint(equalTo: toolbarView.centerYAnchor),
             sendButton.widthAnchor.constraint(equalToConstant: 34),
             sendButton.heightAnchor.constraint(equalToConstant: 34),
         ])
@@ -148,8 +172,10 @@ final class ComposerView: UIView, UITextViewDelegate {
         cardView.backgroundColor = t.composerBackground
         cardView.layer.borderColor = t.border.cgColor
         textView.textColor = t.textPrimary
+        textView.tintColor = t.accent
         textView.keyboardAppearance = t.keyboardAppearance
         placeholderLabel.textColor = t.textTertiary
+        attachButton.setImage(Icons.image(.plus, size: 20, color: t.textPrimary), for: .normal)
         modelButton.backgroundColor = t.background
         modelButton.setTitleColor(t.textSecondary, for: .normal)
         updateSendButton()
@@ -157,7 +183,8 @@ final class ComposerView: UIView, UITextViewDelegate {
 
     private func updateSendButton() {
         let t = Theme.current
-        let hasContent = !(textView.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !pendingAttachments.isEmpty
+        let hasText = !(textView.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || textView.markedTextRange != nil
+        let hasContent = hasText || !pendingAttachments.isEmpty
         if isStreaming {
             sendButton.backgroundColor = t.destructive
             sendButton.setImage(Icons.image(.stop, size: 16, color: .white), for: .normal)
@@ -251,17 +278,22 @@ final class ComposerView: UIView, UITextViewDelegate {
     }
 
     func textViewDidChange(_ textView: UITextView) {
-        placeholderLabel.isHidden = !textView.text.isEmpty
+        let hasAnyText = !(textView.text ?? "").isEmpty || textView.markedTextRange != nil
+        placeholderLabel.isHidden = hasAnyText
         let width = textView.bounds.width > 0 ? textView.bounds.width : (UIScreen.main.bounds.width - 28)
         let fit = textView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
-        let maxH: CGFloat = 120
+        let maxH: CGFloat = 110
         textView.isScrollEnabled = fit.height > maxH
-        textHeightConstraint.constant = max(38, min(fit.height, maxH))
+        let newH = max(40, min(ceil(fit.height), maxH))
+        if abs(textHeightConstraint.constant - newH) > 0.5 {
+            textHeightConstraint.constant = newH
+            superview?.layoutIfNeeded()
+        }
         updateSendButton()
     }
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if SettingsStore.shared.returnToSend && text == "\n" && !isStreaming {
+        if SettingsStore.shared.returnToSend && text == "\n" && !isStreaming && textView.markedTextRange == nil {
             sendTapped()
             return false
         }

@@ -42,6 +42,8 @@
     </array>
     <key>UIRequiresFullScreen</key>
     <false/>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>画像を添付・保存するためにフォトライブラリへのアクセスが必要です。</string>
     <key>NSPhotoLibraryAddUsageDescription</key>

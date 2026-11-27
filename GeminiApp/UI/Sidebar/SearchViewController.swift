@@ -16,6 +16,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate, UITable
         searchBar.delegate = self
         searchBar.placeholder = "タイトルやメッセージ内容を検索..."
         searchBar.searchBarStyle = .minimal
+        searchBar.barStyle = t.isDark ? .black : .default
+        searchBar.keyboardAppearance = t.keyboardAppearance
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchBar)
 

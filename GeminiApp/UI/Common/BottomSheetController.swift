@@ -24,6 +24,10 @@ final class BottomSheetController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return Theme.current.statusBarStyle
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let t = Theme.current
