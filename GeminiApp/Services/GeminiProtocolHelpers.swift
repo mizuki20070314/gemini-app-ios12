@@ -568,7 +568,11 @@ enum GeminiProtocolParser {
             } else {
                 inner[54] = [[[[sourceIds]]]]
             }
-            inner[55] = selectedIds.isEmpty ? [Any]() : [selectedIds]
+            if selectedIds.isEmpty {
+                inner[55] = [Any]()
+            } else {
+                inner[55] = [selectedIds]
+            }
         }
 
         inner[59] = requestUUID

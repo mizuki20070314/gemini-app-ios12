@@ -52,7 +52,10 @@ final class GeminiWebClient: NSObject {
     private var reqSeq: Int64 = 0
     private lazy var reqBase: Int64 = {
         let comps = Calendar.current.dateComponents([.hour, .minute, .second], from: Date())
-        return Int64((comps.hour ?? 0) * 3600 + (comps.minute ?? 0) * 60 + (comps.second ?? 0))
+        let h = Int64(comps.hour ?? 0)
+        let m = Int64(comps.minute ?? 0)
+        let s = Int64(comps.second ?? 0)
+        return h * 3600 + m * 60 + s
     }()
 
     private let stateQueue = DispatchQueue(label: "com.mizuki.geminiios12.webclient.state")
