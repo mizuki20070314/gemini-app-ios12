@@ -220,6 +220,7 @@ enum GeminiProtocolParser {
         }
         let defaultMode = JSONNav.intAt(payload, 0) ?? 0
         let chatPolicy = parsePolicy(payload: payload, surface: 1)
+        let upgradeLockedModes = Set(chatPolicy.filter { $0.upgrade && $0.variant.isEmpty }.map { $0.mode })
 
         var models: [GeminiModel] = []
         for rawRow in rows {
@@ -230,6 +231,7 @@ enum GeminiProtocolParser {
             if title.isEmpty { title = JSONNav.stringAt(row, 19) ?? "" }
             let mode = JSONNav.intAt(row, 17) ?? 0
             if hash.isEmpty || title.isEmpty || mode == 0 { continue }
+            if upgradeLockedModes.contains(mode) { continue }
             let subtitle = JSONNav.stringAt(row, 12) ?? ""
             let (displayName, description) = resolveModelName(short: short, title: title, subtitle: subtitle)
             let levels = policyLevels(chatPolicy, mode: mode, variant: "") ?? []

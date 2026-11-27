@@ -290,6 +290,14 @@ final class GeminiWebClient: NSObject {
             }
         }
         writeDiagnosticsStatus(result)
+        if case .success(let bs) = result {
+            let cur = SettingsStore.shared.selectedModelId
+            if cur.isEmpty || !bs.models.contains(where: { $0.id.lowercased() == cur.lowercased() }) {
+                DispatchQueue.main.async {
+                    SettingsStore.shared.selectedModelId = bs.defaultModel.id
+                }
+            }
+        }
         notifyStateChange()
         DispatchQueue.main.async {
             completion?(result)
