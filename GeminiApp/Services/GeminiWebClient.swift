@@ -289,9 +289,42 @@ final class GeminiWebClient: NSObject {
                 _lastError = err.localizedDescription
             }
         }
+        writeDiagnosticsStatus(result)
         notifyStateChange()
         DispatchQueue.main.async {
             completion?(result)
+        }
+    }
+
+    private func writeDiagnosticsStatus(_ result: Result<GeminiBootstrap, Error>) {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory())
+        let dir = base.appendingPathComponent("GeminiData", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("status.json")
+        var dict: [String: Any] = [
+            "updatedAt": ISO8601DateFormatter().string(from: Date()),
+            "isGuestSession": isGuestSession,
+            "useGuestMode": SettingsStore.shared.useGuestMode,
+            "cookieCount": GeminiCookieStore.shared.count,
+            "hasAccountCredentials": GeminiCookieStore.shared.hasAccountCredentials,
+            "keychainLastStatus": Int(KeychainStore.shared.lastStatus)
+        ]
+        switch result {
+        case .success(let bs):
+            dict["ok"] = true
+            dict["email"] = bs.email
+            dict["bl"] = bs.bl
+            dict["language"] = bs.language
+            dict["tier"] = bs.usage?.tierName ?? (bs.isGuest ? "Guest" : "Unknown")
+            dict["modelCount"] = bs.models.count
+            dict["models"] = bs.models.map { $0.id }
+        case .failure(let err):
+            dict["ok"] = false
+            dict["error"] = err.localizedDescription
+        }
+        if let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
+            try? data.write(to: url, options: [.atomic])
         }
     }
 

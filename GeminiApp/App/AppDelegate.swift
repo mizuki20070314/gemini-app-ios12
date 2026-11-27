@@ -14,7 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        if GeminiWebClient.shared.bootstrapState == nil && !GeminiWebClient.shared.isBootstrapping {
+        if GeminiCookieStore.shared.importPendingDropInIfPresent() {
+            GeminiWebClient.shared.initialize(completion: nil)
+        } else if GeminiWebClient.shared.bootstrapState == nil && !GeminiWebClient.shared.isBootstrapping {
             GeminiWebClient.shared.initialize(completion: nil)
         }
     }

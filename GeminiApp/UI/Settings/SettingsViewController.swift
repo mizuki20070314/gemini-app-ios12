@@ -95,7 +95,7 @@ final class SettingsViewController: UITableViewController {
                 cell.detailTextLabel?.text = "/u/\(SettingsStore.shared.authUser)"
                 cell.accessoryType = .disclosureIndicator
             case 4:
-                cell.textLabel?.text = "セッション再取得 & Cookie ローテーション"
+                cell.textLabel?.text = "セッション / Cookie 更新"
                 cell.detailTextLabel?.text = "\(GeminiCookieStore.shared.count) 個"
             case 5:
                 cell.textLabel?.text = client.isGuestSession ? "保存済み Cookie で再接続" : "サインアウト（ゲストモードへ）"
@@ -281,6 +281,7 @@ final class SettingsViewController: UITableViewController {
     }
 
     private func runRefreshAndRotate() {
+        _ = GeminiCookieStore.shared.importPendingDropInIfPresent()
         if !GeminiWebClient.shared.isGuestSession {
             GeminiWebClient.shared.rotateCookies { [weak self] _, rotMsg in
                 GeminiWebClient.shared.initialize { res in

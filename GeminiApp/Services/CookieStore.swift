@@ -22,6 +22,29 @@ final class GeminiCookieStore {
 
     private init() {
         loadFromKeychain()
+        _ = importPendingDropInIfPresent()
+    }
+
+    /// Checks for a drop-in cookie file (`GeminiSecure/pending_cookies.txt`), imports it into Keychain,
+    /// switches out of guest mode, and deletes the drop-in file.
+    @discardableResult
+    func importPendingDropInIfPresent() -> Bool {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory())
+        let pendingURL = base.appendingPathComponent("GeminiSecure", isDirectory: true)
+            .appendingPathComponent("pending_cookies.txt")
+        guard FileManager.default.fileExists(atPath: pendingURL.path),
+              let raw = try? String(contentsOf: pendingURL, encoding: .utf8) else {
+            return false
+        }
+        try? FileManager.default.removeItem(at: pendingURL)
+        let res = importRawInput(raw)
+        if res.imported > 0 && res.hasRequired {
+            if let au = res.authUser { SettingsStore.shared.authUser = au }
+            SettingsStore.shared.useGuestMode = false
+            return true
+        }
+        return false
     }
 
     var count: Int {
