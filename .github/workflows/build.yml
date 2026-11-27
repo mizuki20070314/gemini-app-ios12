@@ -1,0 +1,81 @@
+name: Build GeminiApp (iOS 12+)
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 16.4
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+          xcodebuild -version
+          swift --version
+          echo "iphoneos SDK: $(xcrun --sdk iphoneos --show-sdk-version)"
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned device app (arm64, iOS 12+)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project GeminiApp.xcodeproj \
+            -scheme GeminiApp \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log
+
+      - name: Verify binary & Package IPA
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/GeminiApp.app"
+          test -d "$APP"
+          echo "=== Mach-O info ==="
+          file "$APP/GeminiApp"
+          lipo -info "$APP/GeminiApp"
+          xcrun vtool -show-build "$APP/GeminiApp" | head -12 || true
+          echo "=== Frameworks ==="
+          ls -la "$APP/Frameworks" 2>/dev/null || echo "(none)"
+          rm -rf Payload GeminiApp-ios12-unsigned.ipa
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry GeminiApp-ios12-unsigned.ipa Payload
+          ls -lh GeminiApp-ios12-unsigned.ipa
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeminiApp-ios12-unsigned
+          path: GeminiApp-ios12-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Print compiler errors on failure
+        if: failure()
+        run: |
+          if [ -f build.log ]; then
+            grep -E "error:|warning: .*deprecated" build.log | head -200 || true
+          fi
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore

@@ -1,0 +1,27 @@
+name: GeminiApp
+options:
+  bundleIdPrefix: com.mizuki
+  deploymentTarget:
+    iOS: "12.0"
+settings:
+  SWIFT_VERSION: "5.0"
+targets:
+  GeminiApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "12.0"
+    sources:
+      - path: GeminiApp
+        excludes:
+          - Info.plist
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.mizuki.geminiios12
+      INFOPLIST_FILE: GeminiApp/Info.plist
+      SWIFT_VERSION: "5.0"
+      TARGETED_DEVICE_FAMILY: "1,2"
+      CODE_SIGNING_ALLOWED: "NO"
+      "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "YES"
+      "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+      ENABLE_BITCODE: "NO"
+      ARCHS: "$(ARCHS_STANDARD)"
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

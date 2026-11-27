@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>ja</string>
+    <key>CFBundleDisplayName</key>
+    <string>Gemini</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>ja</string>
+        <string>en</string>
+    </array>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIRequiresFullScreen</key>
+    <false/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>画像を添付・保存するためにフォトライブラリへのアクセスが必要です。</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>生成された画像をフォトライブラリに保存するためにアクセスが必要です。</string>
+    <key>NSCameraUsageDescription</key>
+    <string>写真を撮影して添付するためにカメラへのアクセスが必要です。</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.mizuki.geminiios12</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>geminiios12</string>
+            </array>
+        </dict>
+    </array>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+</dict>
+</plist>
